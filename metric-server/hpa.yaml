@@ -1,0 +1,17 @@
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: my-app-hpa
+  namespace: api
+  labels:
+    app: my-app
+    tier: backend
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1beta1
+    kind: Deployment
+    name: node-recipe-server
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 5

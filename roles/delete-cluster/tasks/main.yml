@@ -1,0 +1,114 @@
+---
+
+####################
+# Delete Kubernetes cluster using Kops
+####################
+#- name: Trying to delte the VPC
+#  ec2_vpc_net:
+#    name: "{{ cluster_name }}"
+#    cidr_block: 172.20.0.0/16 #Need to find it dynamically
+#    state: absent
+- block:
+  #- name: Delete the cluster
+  #  shell: "kops delete cluster {{ cluster_name }} --state {{ state_store }} --yes"
+
+  #- name: List all vpc peers
+  #  ec2_vpc_peering_facts:
+  #    region: us-east-1
+  #  register: all_vpc_peers
+
+#
+#  - name: Delete RDS
+#    rds:
+#      command: delete
+#      instance_name: csye7374-RDS-instance
+#      region: us-east-1
+#    ignore_errors: yes
+#
+#
+#  - name: Waiting for RDS deletion
+#    rds_instance_facts:
+#      db_instance_identifier: csye7374-RDS-instance
+#    register: rds_facts
+#    until: rds_facts.instances[0].db_instance_status.find("deleted") != -1
+#    retries: 15
+#    delay: 60
+#    ignore_errors: yes
+#
+#  - debug: var=rds_facts.instances[0].db_instance_status
+#
+#  - rds_subnet_group:
+#      state: absent
+#      name: RDS Subnet Group
+#      region: us-east-1
+#    ignore_errors: yes
+#
+#  - name: Deleting RDS security group
+#    ec2_group:
+#      name: dbserverSecurityGroup
+#      description: DB security group Deleted cluster: \"dev.csye6225-spring2019-balania.me\"
+#      state: absent
+#    ignore_errors: yes
+
+  - name: Delete the cluster
+    shell: "kops delete cluster {{ cluster_name }} --state {{ state_store }} --yes"
+    register: cmd_result
+    until: cmd_result.stdout.find('Deleted cluster') != -1
+    retries: 20
+    delay: 60
+  rescue:
+    - ec2_vpc_net_facts: #gathering facts about ec2 vpc's
+        filters:
+          "tag:Name": "{{cluster_name}}"
+      register: vpc #storing the facts in this variable vpc
+    #- set_fact: the_count={{vpc.stdout}}
+    - ec2_vpc_net_facts: #gathering facts about ec2 vpc's
+        filters:
+          "tag:Name": "Default"
+      register: vpcd
+
+    - debug: var=vpc.vpcs[0].id #printing default VPC ID
+
+    - ec2_eni:
+        state: absent
+        force_detach: yes
+        eni_id: eni-016afc1bed678eb46
+        region: us-east-1
+    - ec2_vpc_dhcp_option:
+    #domain_name: "foo.example.com"
+        region: us-east-1
+    #dns_servers:
+    #    - 10.0.0.1
+    #    - 10.0.1.1
+    #ntp_servers:
+    #    - 10.0.0.2
+    #    - 10.0.1.2
+    #netbios_name_servers:
+    #    - 10.0.0.1
+    #    - 10.0.1.1
+    #netbios_node_type: 2
+        vpc_id: "{{ vpc.vpcs[0].id }}"
+        dhcp_options_id: "{{ vpc.vpcs[0].dhcp_options_id }}"
+        state: absent
+
+    #inherit_existing: False
+    - name: Trying to delete the VPC
+      ec2_vpc_net:
+        name: "{{ cluster_name }}"
+        cidr_block: "{{ vpc.vpcs[0].cidr_block }}" #Need to find it dynamically
+        state: absent
+
+
+#- name: Trying K8's new method #Try after VPC Peering
+#  k8s:
+#    state: absent
+#    name: dev.csye6225-spring2019-balania.me
+
+#- name: Get a list of all pods from any namespace
+#  k8s_facts:
+#    kind: Pod
+#  register: pod_list
+
+#- name: Generating Pod list
+#  copy: content="{{ pod_list }}" dest=/Users/akashbalani/Documents/assignment6-infra/team6-infra/pods
+#

@@ -1,0 +1,23 @@
+---
+# tasks file for /Users/akmurgod/work/advanced_cloud/temp/fa19-infra/roles/create-cluster
+####################
+# Create Kubernetes cluster using Kops
+####################
+
+- name: Create cluster with webhook enabled
+  shell: "kops create -f cluster_with_webhook/cluster.yaml"
+
+- name: kops create secret
+  shell: kops create secret --state {{ state_store }} --name {{ cluster_name }} sshpublickey admin -i {{ ssh_public_key }}
+
+- name: kops update
+  shell: "kops update cluster --state {{ state_store }} --yes --name {{ cluster_name }}"
+
+- name: Verify that all Kubernetes nodes are ready
+  shell: "kops validate cluster --name {{ cluster_name }} --state {{ state_store }}"
+  register: cmd_result
+  until: cmd_result.stdout.find('Your cluster ' + cluster_name + ' is ready') != -1
+  retries: 20
+  delay: 60
+
+

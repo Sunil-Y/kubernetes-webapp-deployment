@@ -1,0 +1,16 @@
+---
+#defaults file for /Users/akmurgod/work/advanced_cloud/temp/fa19-infra/roles/create-cluster
+#bastion: true
+#dns-zone: https://storage.googleapis.com/kubernetes-helm/helm-{{ helm_version }}-linux-amd64.tar.gz
+#master-size: t2.micro
+#master-zones: us-east-1b,us-east-1c,us-east-1d
+#master-count: 3
+#node-count: 3
+#node-size: t2.micro
+#topology: private
+#dns-zone:
+#name: prod.csye6225-fall2018-sahanip.xyz
+#state: psprod-csye7374-kubernetes-cluster-state-store #This Too
+#networking: calico
+#ssh_public_key:  #Dont Commit this
+#kubernetes-version: 1.13.1

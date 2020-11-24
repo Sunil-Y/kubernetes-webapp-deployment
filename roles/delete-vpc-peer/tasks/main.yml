@@ -1,0 +1,15 @@
+---
+# tasks file for delete-vpc-peer
+- name: List all vpc peers
+  ec2_vpc_peering_facts:
+    region: us-east-1
+    #status: active
+  register: all_vpc_peers
+
+- name: delete a local VPC peering Connection
+  ec2_vpc_peer:
+    region: us-east-1
+    # "{{ ip_from_ec2.instances | map(attribute='public_dns_name') | first }}"
+    peering_id: "{{ all_vpc_peers.result[0].vpc_peering_connection_id}}" # It's Alright
+    state: absent
+  register: vpc_peer

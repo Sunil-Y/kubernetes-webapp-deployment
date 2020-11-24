@@ -1,0 +1,32 @@
+---
+apiVersion: extensions/v1beta1
+kind: ReplicaSet                 # Type of Kubernetes resource
+metadata:
+  name: node-recipe-frontend          # Name of the Kubernetes resource
+  namespace: ui
+spec:
+  replicas: 3                    # Number of pods to run at any given time
+  selector:
+    matchLabels:
+      app: node-recipe-frontend        # This deployment applies to any Pods matching the specified label
+  template:                      # This deployment will create a set of pods using the configurations in this template
+    metadata:
+      labels:                    # The labels that will be applied to all of the pods in this deployment
+        app: node-recipe-frontend
+    spec:                        # Spec for the container which will run in the Pod
+      containers:
+      - name: node-recipe-server
+        image: akmurgod/f19-t6-webapp-frontend:c1a476a49e25ce508d849329cfff5e4cee1067f4
+        imagePullPolicy: IfNotPresent
+        #resources:
+                #requests:
+                #memory: "128Mi"
+                #cpu: "1000m"
+                #limits:
+                #memory: "128Mi"
+                #cpu: "1000m"
+        ports:
+          - containerPort: 3000  # Should match the port number that the Go application listens on
+        envFrom:
+          - configMapRef:
+              name: frontendmap

@@ -1,0 +1,12 @@
+---
+# tasks file for create-metrics-server
+- name: create kubelet admin account
+  shell: "kubectl create -f metric-server/kubelet-admin.yaml"
+
+- name: Install metrics-server with Helm
+  shell: "helm install --name metrics-server stable/metrics-server --namespace kube-system --values metric-server/values.yaml --set args={\"--kubelet-insecure-tls=true, --kubelet-preferred-address-types=InternalIP,Hostname,ExternalIP \"}"
+
+- name: service accounts and permissions
+  shell: "kubectl apply -f metric-server/metric-server-permissions.yaml"
+
+

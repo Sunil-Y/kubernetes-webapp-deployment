@@ -1,0 +1,59 @@
+---
+# tasks file for kubernetes-deployment
+
+
+- name: Gathering Zones
+  aws_az_facts:
+    aws_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}"
+    aws_secret_key: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}"
+    region: us-east-1
+  register: zones1
+
+  #- name: Create a kubernetes namespace
+  #kubernetes:
+  #  api_endpoint: localhost
+  #  file_reference: /template/create_namespace.yaml
+  #  state: present
+
+
+- name: Create a k8s namespace
+  k8s:
+    name: ui
+    api_version: v1
+    #kubeconfig: /Users/akashbalani/Documents/assignment6-infra/team6-infra/frontend/frontend-ConfigMap.yaml
+    #resource_definition: "{{ lookup('file', '/Users/akashbalani/Documents/assignment6-infra/team6-infra/frontend/frontend-ConfigMap.yaml') }}"
+    kind: Namespace
+#    state: absent
+    state: present
+
+- name: Create a k8s ConfigMap
+  k8s:
+    name: ui
+    api_version: v1
+    #kubeconfig: /Users/akashbalani/Documents/assignment6-infra/team6-infra/frontend/frontend-ConfigMap.yaml
+    resource_definition: "{{ lookup('file', '/Users/akashbalani/Documents/assignment6-new-infra/team6-infra/frontend/frontend-ConfigMap.yaml') }}"
+    kind: Namespace
+#    state: absent
+    state: present
+
+- name: Create a k8s deployment
+  k8s:
+    name: ui
+    api_version: v1
+    #kubeconfig: /Users/akashbalani/Documents/assignment6-infra/team6-infra/frontend/frontend-ConfigMap.yaml
+    resource_definition: "{{ lookup('file', '/Users/akashbalani/Documents/assignment6-new-infra/team6-infra/frontend/frontend-k8-deployment.yaml') }}"
+    kind: Namespace
+    #state: absent
+    state: present
+
+- name: Create a k8s service
+  k8s:
+    name: ui
+    api_version: v1
+    namespace: ui
+    #kubeconfig: /Users/akashbalani/Documents/assignment6-infra/team6-infra/frontend/frontend-ConfigMap.yaml
+    resource_definition: "{{ lookup('file', '/Users/akashbalani/Documents/assignment6-new-infra/team6-infra/frontend/frontend-k8-service.yaml') }}"
+    #src: /Users/akashbalani/Documents/assignment6-infra/team6-infra/frontend/frontend-k8-service.yaml
+    kind: Namespace
+    #state: absent
+    state: present

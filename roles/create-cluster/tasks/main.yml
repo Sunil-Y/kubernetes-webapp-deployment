@@ -1,0 +1,74 @@
+---
+# tasks file for /Users/akmurgod/work/advanced_cloud/temp/fa19-infra/roles/create-cluster
+####################
+# Create Kubernetes cluster using Kops
+####################
+
+- name: Gathering Zones
+  aws_az_facts:
+    aws_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}"
+    aws_secret_key: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}"
+    region: us-east-1
+  register: zones1
+
+- name: Debug
+  set_fact:
+    zones: "{{ zones1.availability_zones | map(attribute='zone_name') | join(',') }}"
+ # register: "{{ msg.stdout }}"
+
+- block:
+  - name: check if {{ cluster_name }} already exist
+    shell: kops get clusters --state {{ state_store }} {{ cluster_name }}
+    register: kops_get_clusters
+    changed_when: no
+    failed_when: no
+  rescue:
+    - debug:
+        msg: 'Cluster is present'
+
+- block:
+  - name: Configure the K8`s cluster
+    shell: "kops create cluster \
+            --bastion={{ bastion }} \
+            --dns-zone={{ dns_zone }} \
+            --master-size={{ master_size }} \
+            --master-zones={{ master_zones|default(zones) }} \
+            --master-count={{ master_count }} \
+            --node-count={{ node_count }} \
+            --node-size={{ node_size }} \
+            --topology={{ topology }} \
+            --zones={{ zones }}  \
+            --name={{ cluster_name }} \
+            --state {{ state_store }} \
+            --networking={{ kubernetes_networking }} \
+            --ssh-public-key={{ ssh_public_key }} \
+            --kubernetes-version {{ kubernetes_version }}"
+    when: "kops_get_clusters.stderr.find('not found') != -1"
+  rescue:
+    - debug:
+        msg: 'Error, usually because of Elastic IP Limit'
+
+
+- name: kops create secret
+  shell: kops create secret --state {{ state_store }} --name {{ cluster_name }} sshpublickey admin -i {{ ssh_public_key }}
+  when: "kops_get_clusters.stderr.find('not found') != -1"
+
+- block:
+  - name: kops update
+    shell: "kops update cluster --state {{ state_store }} --yes --name {{ cluster_name }}"
+  rescue:
+    - debug:
+        msg: 'Error, usually because of Elastic IP Limit'
+
+- name: Verify that all Kubernetes nodes are ready
+  shell: "kops validate cluster --name {{ cluster_name }} --state {{ state_store }}"
+  register: cmd_result
+  until: cmd_result.stdout.find('Your cluster ' + cluster_name + ' is ready') != -1
+  retries: 20
+  delay: 60
+
+  #- name: Get a list of all pods from any namespace
+  #k8s_facts:
+  #  kind: Pod
+  #register: pod_list
+

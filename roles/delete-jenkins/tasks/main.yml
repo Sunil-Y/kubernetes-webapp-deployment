@@ -1,0 +1,16 @@
+---
+# tasks file for delete-jenkins
+- name: Apply Jenkins Service.
+  shell : "kubectl delete -f jenkins/jenkins-service.yaml"
+  register: kubectl_service_result
+  changed_when: "'AlreadyExists' not in kubectl_service_result.stdout"
+
+- name: Apply Jenkins Deployment.
+  shell : "kubectl delete -f jenkins/jenkins-deployment1.yaml"
+  register: kubectl_deployment_result
+  changed_when: "'AlreadyExists' not in kubectl_deployment_result.stdout"
+
+- name: Apply Jenkins namespace.
+  shell : "kubectl delete -f jenkins/jenkins-namespace.yaml"
+  register: kubectl_name_result
+  changed_when: "'AlreadyExists' not in kubectl_name_result.stdout"

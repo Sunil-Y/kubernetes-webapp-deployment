@@ -1,0 +1,38 @@
+---
+# tasks file for create-nginx
+- name: Install Nginx Server
+  shell : "helm install --name ingress stable/nginx-ingress --set rbac.create=true"
+  register: helm_nginx_result
+
+- name: Install the CustomResourceDefinition resources separately
+  shell: "kubectl apply --validate=false -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.11/deploy/manifests/00-crds.yaml"
+  register: helm_cert_result
+
+- name: Create the namespace for cert-manager
+  shell: "kubectl create namespace cert-manager"
+  register: helm_CRD_result
+
+- name: Add the Jetstack Helm repository
+  shell: "helm repo add jetstack https://charts.jetstack.io"
+  register: helm_CRD_result
+
+- name: Update your local Helm chart repository cache
+  shell: "helm repo update"
+  register: helm_CRD_result
+
+- name: Install the cert-manager Helm chart
+  shell: "helm install \
+  --name cert-manager \
+  --namespace cert-manager \
+  --version v0.11.0 \
+  --set webhook.enabled=false \
+  jetstack/cert-manager"
+  register: helm_CRD_result
+
+- name: Issue Certificate
+  shell: "kubectl apply -f roles/create-nginx/files/nginx-cert-issuer.yaml"
+  register: helm_CRD_result
+
+- name: Issue Certificate
+  shell: "kubectl apply -f roles/create-nginx/files/nginx-cert.yaml"
+  register: helm_CRD_result

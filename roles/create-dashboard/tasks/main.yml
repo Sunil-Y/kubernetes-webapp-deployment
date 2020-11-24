@@ -1,0 +1,15 @@
+---
+# tasks file for create-dashboard
+- name: Download dashboard
+  #shell: "kubectl create -f https://raw.githubusercontent.com/kubernetes/kops/master/addons/kubernetes-dashboard/v1.10.1.yaml"
+  shell: "kubectl create -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta1/aio/deploy/recommended.yaml"
+
+- name: Create-Admin User
+  shell: "kubectl apply -f kubernetes-dashboard/dashboard-adminuser.yml"
+
+- name: Role-Binding
+  shell: "kubectl apply -f kubernetes-dashboard/admin-role-binding.yml"
+
+- name: Get token
+  shell: "kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')"
+

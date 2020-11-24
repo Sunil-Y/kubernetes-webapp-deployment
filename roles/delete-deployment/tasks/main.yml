@@ -1,0 +1,11 @@
+---
+# tasks file for delete-deployment
+- name: Delete UI namespace
+  k8s:
+    name: ui
+    api_version: v1
+    #kubeconfig: /Users/akashbalani/Documents/assignment6-infra/team6-infra/frontend/frontend-ConfigMap.yaml
+    #resource_definition: "{{ lookup('file', '/Users/akashbalani/Documents/assignment6-infra/team6-infra/frontend/frontend-ConfigMap.yaml') }}"
+    kind: Namespace
+#    state: absent
+    state: absent

@@ -1,0 +1,74 @@
+---
+# tasks file for elastic-deployment
+- name: Create a k8s service
+  k8s:
+    name: api
+    api_version: v1
+    namespace: api
+    #kubeconfig: /Users/akashbalani/Documents/assignment6-infra/team6-infra/frontend/frontend-ConfigMap.yaml
+    #resource_definition: "{{ lookup('file', '/Users/akashbalani/Documents/assignment6-new-infra/team6-infra/elasticsearch/staging/es-statefulset.yaml') }}"
+    #src: /Users/akashbalani/Documents/assignment6-infra/team6-infra/frontend/frontend-k8-service.yaml
+    kind: Namespace
+    #state: absent
+    state: present
+
+
+- name: Create a k8s service
+  k8s:
+    name: api
+    api_version: v1
+    namespace: api
+    #kubeconfig: /Users/akashbalani/Documents/assignment6-infra/team6-infra/frontend/frontend-ConfigMap.yaml
+    resource_definition: "{{ lookup('file', '/Users/akashbalani/Documents/assignment6-new-infra/team6-infra/elasticsearch/staging/es-statefulset.yaml') }}"
+    #src: /Users/akashbalani/Documents/assignment6-infra/team6-infra/frontend/frontend-k8-service.yaml
+    kind: Namespace
+    #state: absent
+    state: present
+
+- name: Create a k8s service
+  k8s:
+    name: api
+    api_version: v1
+    namespace: api
+    #kubeconfig: /Users/akashbalani/Documents/assignment6-infra/team6-infra/frontend/frontend-ConfigMap.yaml
+    resource_definition: "{{ lookup('file', '/Users/akashbalani/Documents/assignment6-new-infra/team6-infra/elasticsearch/staging/es-rc.yaml') }}"
+    #src: /Users/akashbalani/Documents/assignment6-infra/team6-infra/frontend/frontend-k8-service.yaml
+    kind: Namespace
+    #state: absent
+    state: present
+
+- name: Create a k8s service
+  k8s:
+    name: api
+    api_version: v1
+    namespace: api
+    #kubeconfig: /Users/akashbalani/Documents/assignment6-infra/team6-infra/frontend/frontend-ConfigMap.yaml
+    resource_definition: "{{ lookup('file', '/Users/akashbalani/Documents/assignment6-new-infra/team6-infra/elasticsearch/staging/es-svc.yaml') }}"
+    #src: /Users/akashbalani/Documents/assignment6-infra/team6-infra/frontend/frontend-k8-service.yaml
+    kind: Namespace
+    #state: absent
+    state: present
+
+- name: Create a k8s service
+  k8s:
+    name: api
+    api_version: v1
+    namespace: api
+    #kubeconfig: /Users/akashbalani/Documents/assignment6-infra/team6-infra/frontend/frontend-ConfigMap.yaml
+    resource_definition: "{{ lookup('file', '/Users/akashbalani/Documents/assignment6-new-infra/team6-infra/elasticsearch/staging/service-account.yaml') }}"
+    #src: /Users/akashbalani/Documents/assignment6-infra/team6-infra/frontend/frontend-k8-service.yaml
+    kind: Namespace
+    #state: absent
+    state: present
+
+- name: Create a k8s service
+  k8s:
+    name: api
+    api_version: v1
+    namespace: api
+    #kubeconfig: /Users/akashbalani/Documents/assignment6-infra/team6-infra/frontend/frontend-ConfigMap.yaml
+    resource_definition: "{{ lookup('file', '/Users/akashbalani/Documents/assignment6-new-infra/team6-infra/elasticsearch/staging/rbac.yaml') }}"
+    #src: /Users/akashbalani/Documents/assignment6-infra/team6-infra/frontend/frontend-k8-service.yaml
+    kind: Namespace
+    #state: absent
+    state: present

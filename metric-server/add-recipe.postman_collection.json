@@ -1,0 +1,96 @@
+{
+	"info": {
+		"_postman_id": "d55ef09a-cce4-4a15-a6a2-786b0068eb92",
+		"name": "add-recipe",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "http://af6cd12f508f611eab3b40ee8b51349f-446818016.us-east-1.elb.amazonaws.com/v1/recipe",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "Balanu@1234",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "balani@gmail.com",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"cook_time_in_min\": 15,\n    \"prep_time_in_min\": 15,\n    \"title\": \"Biryami\",\n    \"cuisine\": \"Italian\",\n    \"servings\": 2,\n    \"ingredients\": [\n        \"4 ounces linguine pasta\",\n        \"2 boneless, skinless chicken breast halves, sliced into thin strips\",\n        \"2 teaspoons Cajun seasoning\",\n        \"2 tablespoons butter\"\n    ],\n    \"steps\": [\n        {\n            \"position\": 1,\n            \"items\": \"some text here\"\n        }\n    ],\n    \"nutrition_information\": {\n        \"calories\": 100,\n        \"cholesterol_in_mg\": 4,\n        \"sodium_in_mg\": 100,\n        \"carbohydrates_in_grams\": 53.7,\n        \"protein_in_grams\": 53.7\n    }\n}"
+				},
+				"url": {
+					"raw": "http://af6cd12f508f611eab3b40ee8b51349f-446818016.us-east-1.elb.amazonaws.com/v1/recipe",
+					"protocol": "http",
+					"host": [
+						"ab1fc4b15074611eab92412a25270fca-671953508",
+						"us-east-1",
+						"elb",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"v1",
+						"recipe"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "password",
+				"value": "Balani@1234",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "balani@gmail.com",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "3b333367-dba0-4b22-9773-580b8577584d",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "7720d544-3ede-4b7f-8be6-9a9fdf738d31",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"protocolProfileBehavior": {}
+}

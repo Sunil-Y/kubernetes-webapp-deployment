@@ -1,0 +1,19 @@
+---
+# tasks file for grafana-datasource
+#
+- name: Get Grafana Password
+  shell: "kubectl get secret --namespace grafana grafana -o jsonpath=\"{.data.admin-password}\" | base64 --decode ; echo"
+  register: admin_password
+
+
+- name: Creating Grafana Datasource using Prometheus
+  grafana_datasource:
+    name: "datasource-prometheus"
+    grafana_url: "http://localhost:3000"
+    grafana_user: "admin"
+    grafana_password: "{{ admin_password.stdout }}"
+    org_id: 1
+    ds_type: "prometheus"
+    ds_url: "http://abd2815acfde411e9b53b02a504997bb-931478812.us-east-1.elb.amazonaws.com"
+    state: present
+

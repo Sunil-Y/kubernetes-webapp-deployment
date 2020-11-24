@@ -1,0 +1,3 @@
+helm install stable/kubernetes-dashboard --name dashboard --namespace kube-system --set rbac.create=true
+helm install stable/oauth2-proxy --namespace=kube-system -f dashboard.yaml --name=k8s-dash-oauth2 --set rbac.create=true
+helm upgrade --namespace=kube-system dashboard stable/kubernetes-dashboard -f dashboard-update.yaml --set rbac.create=true

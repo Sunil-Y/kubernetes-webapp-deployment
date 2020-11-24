@@ -1,0 +1,112 @@
+---
+###########################
+# Setup Kubernetes Cluster
+###########################
+
+- hosts: localhost
+  # vars_prompt:
+  #
+  #   - name: cluster_name
+  #     prompt: "What is your Cluster Name?"
+  #     private: no
+  #
+  #   - name: kubernetes_version
+  #     prompt: "What is your Cluster Version?"
+  #     default: "1.13.1"
+  #     private: no
+  #
+  #   - name: dns_zone
+  #     prompt: "Enter your dns zone"
+  #     private: no
+  #
+  #   - name: node_count
+  #     prompt: "What is your Node Count?"
+  #     default: "3"
+  #     private: no
+  #
+  #   - name: master_zones
+  #     prompt: "What are the AZ available - master ?"
+  #     default: "us-east-1b,us-east-1c,us-east-1d"
+  #     private: no
+  #
+  #   - name: master_size
+  #     prompt: "What is the size of your Master Node?"
+  #     default: "t2.micro"
+  #     private: no
+  #
+  #   - name: node_size
+  #     prompt: "What is the size of your Compute Node Size?"
+  #     default: "t2.micro"
+  #     private: no
+  #
+  #   - name: master_count
+  #     prompt: "master_count"
+  #     default: "3"
+  #     private: no
+  #
+  #   - name: kubernetes_networking
+  #     prompt: "kubernetes_networking"
+  #     default: "calico"
+  #     private: no
+  #
+  #   - name: topology
+  #     prompt: "Topology? "
+  #     default: "private"
+  #     private: no
+  #
+  #   - name: ssh_public_key
+  #     prompt: "What is the path of SSH Public Key?"
+  #     private: no
+  #
+  #   - name: state_store
+  #     prompt: "What is your S3 Bucket Name?"
+  #     private: no
+  #
+  #   - name: bastion
+  #     default: true
+  #     private: no
+
+  connection: local
+  tasks:
+  - import_role:
+      name: create-cluster-with-webhook
+    tags: create-cluster-with-webhook
+
+  - import_role:
+      name: create-rds
+    tags: create-rds
+
+  - import_role:
+      name: create-vpc-peer
+    tags: create-vpc-peer
+
+    #installs Tiller. Prometheus, Grafana. Configures RBAC
+  - import_role:
+      name: create-monitoring-setup
+    tags: create-monitoring-setup
+
+  - import_role:
+      name: create-jenkins
+    tags: create-jenkins
+
+    #  - import_role:
+    #  name: grafana-datasource
+    #tags: grafana-datasource
+
+    #- import_role:
+    #  name: create-nginx
+    #tags: create-nginx
+
+  - import_role:
+      name: create-dashboard
+    tags: create-dashboard
+
+  - import_role:
+      name: create-metrics-server
+    tags: create-metrics-server
+
+  - import_role:
+      name: create-backend
+    tags: create-backend
+
+

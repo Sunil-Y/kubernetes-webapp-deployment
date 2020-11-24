@@ -1,0 +1,291 @@
+---
+# tasks file for create-helm
+- name: Gathering Zones
+  action:
+    module: ec2_elb_facts
+    region: us-east-1
+  register: elb_facts
+
+- name: Add the instance to the inventory file
+  add_host:
+    name: "{{ elb_facts.elbs | selectattr('canonical_hosted_zone_name', 'contains' ,'bastion') | map(attribute='canonical_hosted_zone_name') | first }}"
+    groups: just_added
+       #ansible_user: centos "{{ elb_facts.elbs | map(attribute='canonical_hosted_zone_name') | first }}" map(attribute='canonical_hosted_zone_name') 'foobar' | regex_search('(foo)')
+    ansible_ssh_user: admin
+    ansible_ssh_host: "{{ elb_facts.elbs | selectattr('canonical_hosted_zone_name', 'contains' ,'bastion') | map(attribute='canonical_hosted_zone_name') | first }}"
+       #ansible_ssh_private_key_file: robust.pem
+    ansible_ssh_private_key_file: "{{ ssh_private_key }}"
+
+- name: Upgrade all packages to the latest version
+  become: yes
+  remote_user: admin
+  apt:
+    name: "*"
+    state: latest
+  delegate_to: "{{ elb_facts.elbs | selectattr('canonical_hosted_zone_name', 'contains' ,'bastion') | map(attribute='canonical_hosted_zone_name') | first }}"
+
+- name: Install EPEL and SNAPD
+  become: yes
+  remote_user: admin
+  #force_apt_get: yes
+  apt:
+    name:
+      #- snapd
+      - python-pip
+      - python-dev
+      - libgit2-dev
+      - python-setuptools
+    state: present
+    update_cache: yes
+  delegate_to: "{{ elb_facts.elbs | selectattr('canonical_hosted_zone_name', 'contains' ,'bastion') | map(attribute='canonical_hosted_zone_name') | first }}"
+
+# - name: Install Helm dependecy Core
+#   become: yes
+#   remote_user: admin
+#   shell: "snap install core"
+#   delegate_to: "{{ elb_facts.elbs | selectattr('canonical_hosted_zone_name', 'contains' ,'bastion') | map(attribute='canonical_hosted_zone_name') | first }}"
+#
+# - name: Install Helm dependency Core 18
+#   become: yes
+#   remote_user: admin
+#   shell: "snap install core18"
+#   delegate_to: "{{ elb_facts.elbs | selectattr('canonical_hosted_zone_name', 'contains' ,'bastion') | map(attribute='canonical_hosted_zone_name') | first }}"
+
+- name: Install Git
+  become: yes
+  remote_user: admin
+  package:
+    name:
+      - git
+    state: present
+  delegate_to: "{{ elb_facts.elbs | selectattr('canonical_hosted_zone_name', 'contains' ,'bastion') | map(attribute='canonical_hosted_zone_name') | first }}"
+
+# - name: Ensure pyhelm and dependencies are installed.
+#   become: yes
+#   remote_user: admin
+#   pip:
+#     name:
+#       #- pygit2==0.26
+#       #- pyhelm
+#       #- requests==2.14.2
+#       - openshift
+#     state: present
+#     #update_cache: yes
+#   delegate_to: "{{ elb_facts.elbs | selectattr('canonical_hosted_zone_name', 'contains' ,'bastion') | map(attribute='canonical_hosted_zone_name') | first }}"
+
+#- name: Curling Helm on the local system # Will download on the local system
+#  command: curl -L https://git.io/get_helm.sh | zsh
+
+#  register: helm_curl_result
+
+# - name: Creating a tiller service account + rbac on the local system # Will download on the local system
+#   command: kubectl create -f rbac-config.yml
+#   register: helm_create_result
+#
+# - name: Helm Init on the local system # Will download on the local system
+#   command: helm init --service-account tiller --history-max 200
+#   register: helm_init_result
+#
+# - name: Helm add incubator repo on the local system # Will download on the local system
+#   command: helm repo incubator https://kubernetes-charts-incubator.storage.googleapis.com/
+#   register: helm_repo_result
+
+# - name: Add the fluentd repo
+#   command: > helm install --name fluentd \
+#   --namespace fluentd \
+#   --set awsAccessKeyId=REDACTED \
+#   --set awsSecretAccessKey=REDACTED \
+#   --set awsRegion=us-east-1 \
+#   incubator/fluentd-cloudwatch
+#   register: helm_fluentd
+
+# helm fetch --> Downloads the chart
+# helm install --> installs a chart
+# helm upgrade --> update helm release, not helm
+# helm roolback --> rollbacks the latest update
+# helm delete --> delete release
+
+#
+
+# - name: Create Tiller ServiceAccount.
+#   #become: yes
+#   #remote_user: admin
+#   k8s:
+#     state: present
+#     definition:
+#       apiVersion: v1
+#       kind: ServiceAccount
+#       metadata:
+#         name: tiller
+#         namespace: kube-system
+  #delegate_to: "{{ elb_facts.elbs | selectattr('canonical_hosted_zone_name', 'contains' ,'bastion') | map(attribute='canonical_hosted_zone_name') | first }}"
+
+# - name: Apply Tiller RBAC definition.
+#   #become: yes
+#   #remote_user: admin
+#   k8s:
+#     state: present
+#     definition: "{{ lookup('file', 'files/tiller-rbac.yml') | from_yaml }}"
+  #delegate_to: "{{ elb_facts.elbs | selectattr('canonical_hosted_zone_name', 'contains' ,'bastion') | map(attribute='canonical_hosted_zone_name') | first }}"
+
+
+# - name: Retrieve helm binary archive.
+#   become: yes
+#   remote_user: admin
+#   unarchive:
+#     src: https://storage.googleapis.com/kubernetes-helm/helm-v2.15.0-linux-amd64.tar.gz
+#     dest: /tmp
+#     creates: /usr/local/bin/helm
+#     remote_src: yes
+#   delegate_to: "{{ elb_facts.elbs | selectattr('canonical_hosted_zone_name', 'contains' ,'bastion') | map(attribute='canonical_hosted_zone_name') | first }}"
+#
+# - name: Move helm binary into place.
+#   become: yes
+#   remote_user: admin
+#   command: cp -rf /tmp/linux-amd64/helm /usr/local/bin/helm creates=/usr/local/bin/helm
+#   delegate_to: "{{ elb_facts.elbs | selectattr('canonical_hosted_zone_name', 'contains' ,'bastion') | map(attribute='canonical_hosted_zone_name') | first }}"
+
+# - name: Install Helm
+#   become: yes
+#   remote_user: admin
+#   shell: "snap install helm --classic"
+#   delegate_to: "{{ elb_facts.elbs | selectattr('canonical_hosted_zone_name', 'contains' ,'bastion') | map(attribute='canonical_hosted_zone_name') | first }}"
+
+# - name: create helm link
+#   become: yes
+#   remote_user: admin
+#   become: yes
+#   file:
+#     src: '/home/admin/.helm'
+#     dest: '/usr/local/bin/helm'
+#     state: link
+#     owner: root
+#     group: root
+#   delegate_to: "{{ elb_facts.elbs | selectattr('canonical_hosted_zone_name', 'contains' ,'bastion') | map(attribute='canonical_hosted_zone_name') | first }}"
+
+# - name: Get Helm artifact checksum
+#   become: yes
+#   remote_user: admin
+#   uri:
+#     url: "https://storage.googleapis.com/kubernetes-helm/helm-v{{ helm_version }}-linux-amd64.tar.gz.sha256"
+#     return_content: true
+#   register: helm_checksum_result
+#   retries: 10
+#   delegate_to: "{{ elb_facts.elbs | selectattr('canonical_hosted_zone_name', 'contains' ,'bastion') | map(attribute='canonical_hosted_zone_name') | first }}"
+#
+# - name: Create temporary directory
+#   become: yes
+#   remote_user: admin
+#   tempfile:
+#     state: directory
+#     suffix: helm
+#   register: helm_tempdir
+#   delegate_to: "{{ elb_facts.elbs | selectattr('canonical_hosted_zone_name', 'contains' ,'bastion') | map(attribute='canonical_hosted_zone_name') | first }}"
+#
+# - name: Download Helm dist archive
+#   become: yes
+#   remote_user: admin
+#   get_url:
+#     url: "https://storage.googleapis.com/kubernetes-helm/helm-v{{ helm_version }}-linux-amd64.tar.gz"
+#     dest: "{{ helm_tempdir.path }}/helm-v{{ helm_version }}-linux-amd64.tar.gz"
+#     checksum: "sha256:{{ helm_checksum_result.content | regex_search('^[0-9a-f]{64}') }}"
+#     mode: 0644
+#   retries: 10
+#   delegate_to: "{{ elb_facts.elbs | selectattr('canonical_hosted_zone_name', 'contains' ,'bastion') | map(attribute='canonical_hosted_zone_name') | first }}"
+#
+# - name: Unpack Helm dist archive
+#   become: yes
+#   remote_user: admin
+#   unarchive:
+#     remote_src: true
+#     src: "{{ helm_tempdir.path }}/helm-v{{ helm_version }}-linux-amd64.tar.gz"
+#     dest: "{{ helm_tempdir.path }}/"
+#   delegate_to: "{{ elb_facts.elbs | selectattr('canonical_hosted_zone_name', 'contains' ,'bastion') | map(attribute='canonical_hosted_zone_name') | first }}"
+#
+# - name: Install Helm binary
+#   become: yes
+#   remote_user: admin
+#   copy:
+#     remote_src: true
+#     src: "{{ helm_tempdir.path }}/linux-amd64/helm"
+#     dest: /usr/local/bin/helm
+#     mode: 0755
+#   retries: 10
+#   delegate_to: "{{ elb_facts.elbs | selectattr('canonical_hosted_zone_name', 'contains' ,'bastion') | map(attribute='canonical_hosted_zone_name') | first }}"
+#
+# - name: Cleanup installation files
+#   become: yes
+#   remote_user: admin
+#   file:
+#     path: "{{ helm_tempdir.path }}"
+#     state: absent
+#   delegate_to: "{{ elb_facts.elbs | selectattr('canonical_hosted_zone_name', 'contains' ,'bastion') | map(attribute='canonical_hosted_zone_name') | first }}"
+#
+# - name: Set up Helm and Tiller.
+#   #become: yes
+#   #remote_user: admin
+#   command: helm init --service-account tiller
+#   register: helm_init_result
+#   changed_when: "'already installed' not in helm_init_result.stdout"
+#   #delegate_to: "{{ elb_facts.elbs | selectattr('canonical_hosted_zone_name', 'contains' ,'bastion') | map(attribute='canonical_hosted_zone_name') | first }}"
+# #
+# - name: Get Tiller's ClusterIP.
+#   #become: yes
+#   #remote_user: admin
+#   k8s:
+#     api_version: v1
+#     kind: Service
+#     name: tiller-deploy
+#     namespace: kube-system
+#   register: tiller_service
+#   #delegate_to: "{{ elb_facts.elbs | selectattr('canonical_hosted_zone_name', 'contains' ,'bastion') | map(attribute='canonical_hosted_zone_name') | first }}"
+#
+# - name: Set the Helm host and port.
+#   #become: yes
+#   #remote_user: admin
+#   set_fact:
+#     helm_host: "{{ tiller_service.result.spec.clusterIP }}"
+#     helm_port: "{{ tiller_service.result.spec.ports[0].port }}"
+  #delegate_to: "{{ elb_facts.elbs | selectattr('canonical_hosted_zone_name', 'contains' ,'bastion') | map(attribute='canonical_hosted_zone_name') | first }}"
+#
+# - name: Wait for Tiller to become responsive.
+#   wait_for:
+#     host: "{{ elb_facts.elbs | selectattr('canonical_hosted_zone_name', 'contains' ,'bastion') | map(attribute='canonical_hosted_zone_name') | first }}"
+#     port: '{{ helm_port }}'
+#     state: started
+#
+# # - name: List installed Helm charts.
+# #   #become: yes
+# #   #remote_user: admin
+# #   command: helm list
+# #   environment:
+# #     HELM_HOST: '{{ helm_host }}:{{ helm_port }}'
+# #     namespace: kube-system
+# #   register: helm_list_results
+# #   changed_when: False
+#   #delegate_to: "{{ elb_facts.elbs | selectattr('canonical_hosted_zone_name', 'contains' ,'bastion') | map(attribute='canonical_hosted_zone_name') | first }}"
+#
+# - name: Install Cloudwatch with Helm.
+#   #become: yes
+#   #remote_user: admin
+#   command: helm install incubator/fluentd-cloudwatch
+#   environment:
+#     HELM_HOST: '{{ helm_host }}:{{ helm_port }}'
+#     namespace: kube-system
+  #when: "'cloudwatch' not in helm_list_results.stdout"
+  #delegate_to: "{{ elb_facts.elbs | selectattr('canonical_hosted_zone_name', 'contains' ,'bastion') | map(attribute='canonical_hosted_zone_name') | first }}"
+
+# - name: Check helm
+#   become: yes
+#   remote_user: admin
+#   helm:
+#     host: "{{ elb_facts.elbs | selectattr('canonical_hosted_zone_name', 'contains' ,'bastion') | map(attribute='canonical_hosted_zone_name') | first }}"
+#     state: present
+#   delegate_to: "{{ elb_facts.elbs | selectattr('canonical_hosted_zone_name', 'contains' ,'bastion') | map(attribute='canonical_hosted_zone_name') | first }}"
+
+
+
+
+#The deployment/service-aacount Should generate a replica set
+
+#"helm reset" will delete the local deployment

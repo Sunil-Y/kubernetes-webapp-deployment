@@ -1,0 +1,5 @@
+.DS_Store
+.idea
+group_vars/
+create-nginx/files/commands-ref.txt
+setup-k8s-cluster.yaml

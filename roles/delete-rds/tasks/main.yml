@@ -1,0 +1,33 @@
+---
+# tasks file for delete-rds
+- name: Delete RDS
+  rds:
+    command: delete
+    instance_name: csye7374-rds-instance
+    region: us-east-1
+  ignore_errors: yes
+
+
+- name: Waiting for RDS deletion
+  rds_instance_facts:
+    db_instance_identifier: csye7374-RDS-instance
+  register: rds_facts
+  until: rds_facts.instances[0].db_instance_status.find("deleted") != -1
+  retries: 20
+  delay: 60
+  ignore_errors: yes
+
+- debug: var=rds_facts.instances[0].db_instance_status
+
+- rds_subnet_group:
+    state: absent
+    name: RDS Subnet Group
+    region: us-east-1
+  ignore_errors: yes
+
+- name: Deleting RDS security group
+  ec2_group:
+    name: dbserverSecurityGroup
+    description: DB security group
+    state: absent
+  ignore_errors: yes

@@ -1,0 +1,99 @@
+---
+# tasks file for create-rds
+- ec2_vpc_net_facts: #gathering facts about ec2 vpc's
+    filters:
+      "tag:Name": "{{cluster_name}}"
+  register: vpc #storing the facts in this variable vpc
+- ec2_vpc_net_facts: #gathering facts about ec2 vpc's
+    filters:
+      "tag:Name": "Default"
+  register: dvpc #storing the facts in this variable vpc
+
+- debug: var=vpc.vpcs[0].id #printing default VPC ID
+
+- name: Creating RDS security group
+  ec2_group:
+    name: dbserverSecurityGroup
+    description: DB security group
+    vpc_id: "{{dvpc.vpcs[0].id}}" #passing the default vpc ID for RDS SG
+    rules:
+      - proto: tcp
+        from_port: 5432
+        to_port: 5432
+        cidr_ip: 0.0.0.0/0 #allowing everyone to access RDS insid the default VPC on port 5432
+  register: sg_rds #the above facts are stored in this variable
+
+- debug: var=sg_rds.group_id
+
+- ec2_vpc_subnet_facts:
+    filters:
+      vpc-id: "{{dvpc.vpcs[0].id}}"
+  register: subnet #gathering the default VPC subnets and storing here
+
+- debug: var=subnet.subnets[0].id
+- debug: var=subnet.subnets[1].id #priniting the first two default VPC subnets
+
+- rds_subnet_group:
+    state: present
+    description: RDS Subnet Group Creation
+    name: RDS Subnet Group
+    region: us-east-1
+    subnets:
+      - "{{subnet.subnets[0].id}}"
+      - "{{subnet.subnets[1].id}}"
+  register: rds_subnet #saving the above two default subnets here
+
+- name: Creating RDS
+  rds:
+    command: create
+    db_name: csye7374
+    instance_name: csye7374-rds-instance
+    db_engine: postgres
+    engine_version: 11.5 #12 is in Beta
+    size: 20 #storage size in GB, Should be atleast 20GB
+    instance_type: db.t2.micro
+    username: postgres1
+    password: csye7374
+    vpc_security_groups: "{{sg_rds.group_id}}" #passing RDS SG ID from before
+    subnet: "{{rds_subnet.subnet_group.name}}"
+    publicly_accessible: yes
+    multi_zone: no
+    region: us-east-1
+
+- name: Waiting for RDS instance to start
+  rds_instance_facts:
+    db_instance_identifier: csye7374-RDS-instance
+  register: rds_facts
+  until: rds_facts.instances[0].db_instance_status.find("available") != -1
+  retries: 15
+  delay: 60 #waiting for 15mins to get the instance up and checking the status then
+
+- debug: var=rds_facts.instances[0].db_instance_status
+
+#- name: Create local account VPC peering Connection
+#  ec2_vpc_peer:
+#    region: us-east-1
+#    vpc_id: "{{vpc.vpcs[0].id}}"
+#    peer_vpc_id: "{{dvpc.vpcs[0].id}}"
+#    state: present
+#    tags:
+#      Name: Peering connection for VPC 1 to VPC 2
+#      CostCode: CC1234
+#      Project: phoenix
+#      profile: csye7374
+#  register: vpc_peer
+#
+#- debug: var=vpc_peer
+#
+#- name: List all vpc peers
+#  ec2_vpc_peering_facts:
+#    region: us-east-1
+#  register: all_vpc_peers
+
+#- name: Accept peering connection from remote account
+#  ec2_vpc_peer:
+#    region: us-east-1
+#    peering_id: "{{ all_vpc_peers.vpc_peer[0].peering_id }}"
+#    profile: csye7374
+#    state: accept
+#  register: vpc_peer

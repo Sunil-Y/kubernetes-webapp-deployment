@@ -1,0 +1,23 @@
+---
+# tasks file for delete-monitoring-setup
+- name: Delete Grafana
+  shell: "helm del --purge grafana"
+
+- name: Delete Grafana Config
+  shell : "kubectl delete -f roles/create-monitoring-setup/files/grafana-config.yml"
+  register: helm_tiller_result
+
+- name: Delete Prometheus
+  shell: "helm del --purge prometheus"
+
+- name: Delete fluentd
+  shell: "helm del --purge fluentd"
+
+- name: Delete
+  shell: "kubectl delete services -n kube-system tiller-deploy"
+
+- name: Delete
+  shell: "kubectl delete deployments -n kube-system tiller-deploy"
+
+- name: delete
+  shell: "kubectl delete -f rbac-config.yaml"

@@ -1,0 +1,5 @@
+---
+- hosts: localhost
+  remote_user: root
+  roles:
+    - /Users/akmurgod/work/advanced_cloud/temp/fa19-infra/roles/delete-cluster

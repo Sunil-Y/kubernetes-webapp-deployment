@@ -1,0 +1,10 @@
+scrape_configs:
+  - job_name: prometheus
+      static_configs:
+        - targets:
+          - localhost:9090
+  - job_name: 'backend-metrics'
+      metrics_path: '/metrics'
+      scrape_interval: 5s
+      static_configs:
+        - targets: ['backend.api.svc.cluster.local:8080']

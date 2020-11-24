@@ -1,0 +1,35 @@
+---
+# tasks file for kubernetes-deployment-backend
+
+
+- name: Create a k8s ConfigMap
+  k8s:
+    name: api
+    api_version: v1
+    #kubeconfig: /Users/akashbalani/Documents/assignment6-infra/team6-infra/frontend/frontend-ConfigMap.yaml
+    resource_definition: "{{ lookup('file', '/Users/akashbalani/Documents/assignment6-new-infra/team6-infra/backend/bkend-ConfigMap.yaml') }}"
+    kind: Namespace
+#    state: absent
+    state: present
+
+- name: Create a k8s deployment
+  k8s:
+    name: api
+    api_version: v1
+    #kubeconfig: /Users/akashbalani/Documents/assignment6-infra/team6-infra/frontend/frontend-ConfigMap.yaml
+    resource_definition: "{{ lookup('file', '/Users/akashbalani/Documents/assignment6-new-infra/team6-infra/backend/backend-k8-deployment.yaml') }}"
+    kind: Namespace
+    #state: absent
+    state: present
+
+- name: Create a k8s service
+  k8s:
+    name: api
+    api_version: v1
+    namespace: api
+    #kubeconfig: /Users/akashbalani/Documents/assignment6-infra/team6-infra/frontend/frontend-ConfigMap.yaml
+    resource_definition: "{{ lookup('file', '/Users/akashbalani/Documents/assignment6-new-infra/team6-infra/backend/backend-k8-service.yaml') }}"
+    #src: /Users/akashbalani/Documents/assignment6-infra/team6-infra/frontend/frontend-k8-service.yaml
+    kind: Namespace
+    #state: absent
+    state: present

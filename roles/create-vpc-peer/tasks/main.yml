@@ -1,0 +1,39 @@
+---
+# tasks file for create-vpc-peer
+- ec2_vpc_net_facts: #gathering facts about ec2 vpc's
+    filters:
+      "tag:Name": "{{cluster_name}}"
+  register: vpc #storing the facts in this variable vpc
+- ec2_vpc_net_facts: #gathering facts about ec2 vpc's
+    filters:
+      "tag:Name": "Default"
+  register: dvpc #storing the facts in this variable vpc
+- name: Create local account VPC peering Connection
+  ec2_vpc_peer:
+    region: us-east-1
+    vpc_id: "{{vpc.vpcs[0].id}}"
+    peer_vpc_id: "{{dvpc.vpcs[0].id}}"
+    state: present
+    tags:
+      Name: Peering connection for VPC 1 to VPC 2
+      CostCode: CC1234
+      Project: phoenix
+  register: vpc_peer
+
+- debug: var=vpc_peer
+
+- name: List all vpc peers
+  ec2_vpc_peering_facts:
+    region: us-east-1
+  register: all_vpc_peers
+
+#- set_fact: all_vpc_peers1= "{{ all_vpc_peers.stdout }}"
+
+- name: Accept peering connection from remote account
+  ec2_vpc_peer:
+    region: us-east-1
+    # "{{ ip_from_ec2.instances | map(attribute='public_dns_name') | first }}"
+    # peering_id: "{{ all_vpc_peers1.vpc_peering_connection | map(attribute='vpc_peering_connection_id') | first }}"
+    peering_id: "{{ all_vpc_peers.result[0].vpc_peering_connection_id }}"
+    state: accept
+  register: vpc_peer

@@ -1,0 +1,23 @@
+---
+# tasks file for delete-helm
+- name: Gathering Zones
+  action:
+    module: ec2_elb_facts
+    region: us-east-1
+  register: elb_facts
+
+- name: Add the instance to the inventory file
+  add_host:
+    name: "bastion-dev-csye6225-spri-t5a6vu-26627993.us-east-1.elb.amazonaws.com"
+    groups: just_added
+      #ansible_user: centos "{{ elb_facts.elbs | map(attribute='canonical_hosted_zone_name') | first }}" map(attribute='canonical_hosted_zone_name') 'foobar' | regex_search('(foo)')
+    ansible_ssh_user: admin
+    ansible_ssh_host: "bastion-dev-csye6225-spri-t5a6vu-26627993.us-east-1.elb.amazonaws.com"
+      #ansible_ssh_private_key_file: robust.pem
+    ansible_ssh_private_key_file: "{{ ssh_private_key }}"
+
+- name: Delete Helm
+  become: yes
+  remote_user: admin
+  shell: "helm delete --purge"
+  delegate_to: "bastion-dev-csye6225-spri-t5a6vu-26627993.us-east-1.elb.amazonaws.com"

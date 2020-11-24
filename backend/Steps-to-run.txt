@@ -1,0 +1,17 @@
+kubectl apply -f backend/backend-k8-namespace.yaml
+kubectl apply -f backend/bkend-configMAP.yaml
+kubectl apply -f backend/backend-k8-deployment.yaml
+kubectl apply -f backend/backend-role.yaml
+kubectl apply -f backend/backend-k8-service.yaml
+kubectl apply -f backend/backend-serviceaccount.yaml
+kubectl apply -f backend/backend-rolebinding.yaml
+kubectl apply -f backend/backend-ingress.yaml
+
+kubectl apply -f frontend/frontend-k8-namespace.yaml
+kubectl apply -f frontend/frontend-configMAP.yaml
+kubectl apply -f frontend/frontend-k8-deployment.yaml
+kubectl apply -f frontend/frontend-role.yaml
+kubectl apply -f frontend/frontend-k8-service.yaml
+kubectl apply -f frontend/frontend-k8-serviceaccount.yaml
+kubectl apply -f frontend/frontend-rolebinding.yaml
+kubectl apply -f frontend/frontend-ingress.yaml

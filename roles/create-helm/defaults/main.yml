@@ -1,0 +1,9 @@
+---
+# defaults file for create-helm
+helm_version: "2.14.0"
+#helm_version: v2.8.2
+#helm_url: https://storage.googleapis.com/kubernetes-helm/helm-{{ helm_version }}-linux-amd64.tar.gz
+#helm_bin_dir: /opt/bin
+#helm_tiller: tiller-deploy
+#helm_refresh_cache: ""
+ssh_private_key: /Users/akashbalani/Documents/key/id_rsa #Dont Commit this
