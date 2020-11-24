@@ -1,3 +1,4 @@
+<img src="https://raw.githubusercontent.com/Sunil-Y/kubernetes-webapp-deployment/master/extra/kube-logo.png" >
 
 **Pre-requisites**
 
