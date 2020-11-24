@@ -1,25 +1,3 @@
-# team6-infra
-#Test
-**Team Info**
-
-```
-Akshay Murgod
-email: murgod.a@husky.neu.edu
-NUID: 001635872
-
-Akash Balani
-Balani.a@husky.neu.edu
-001476895
-
-Pankaj Sahani 
-sahani.p@husky.neu.edu
-001821986
-
-Sunil Yadav
-yadav.su@husky.neu.edu
-001492711
-
-```
 
 **Pre-requisites**
 
@@ -62,12 +40,12 @@ aws s3api put-bucket-versioning --bucket <bucket-name>  --versioning-configurati
 
 Create cluster:
 ```
-ansible-playbook -vvvv setup-k8s-cluster.yaml --extra-vars "cluster_name=dev.csye6225-spring2019-murgoda.me"
+ansible-playbook -vvvv setup-k8s-cluster.yaml --extra-vars "cluster_name={cluster_name}"
 
 ```
 Delete Cluster:
 ```
-ansible-playbook -vvvv delete-k8s-cluster.yaml --extra-vars "cluster_name=dev.csye6225-spring2019-murgoda.me"
+ansible-playbook -vvvv delete-k8s-cluster.yaml --extra-vars "cluster_name={cluster_name}"
 
 ```
 
@@ -90,7 +68,7 @@ kops validate cluster <cluster-name> --state <s3-bucket-name>
 ```
  ssh -i <Private-Key-Location> admin@<bastion_elb_A_Record>
 
- ssh -i ~/Documents/csye7374/id_rsa admin@bastion-dev-csye6225-fall-6elu42-510934669.us-east-1.elb.amazonaws.com
+ ssh -i ~/Documents/csye7374/id_rsa admin@bastion-url
 
 ```
 
