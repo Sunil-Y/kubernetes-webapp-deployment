@@ -5,10 +5,7 @@
 
 2. Host respective zones on DEV and PRO org accounts.
 ```
-       DEV: dev.csye6225-spring2019-murgoda.me
-       PROD: prod.csye6225-spring2019-murgoda.me
-       
-       NOTE : Main account should include NS record for these to subdomains.
+NOTE : Main account should include NS record for these to subdomains.
 ```
 
 3. Install Following
